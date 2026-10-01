@@ -219,3 +219,5 @@ __marimo__/
 
 # Ignore parquet files in data folder
 data/*.parquet
+
+.DS_Store
