@@ -50,12 +50,12 @@ def apply_standard(df, lst_channels, mean, std_dev): # take in any df (i.e. trai
 
 
 def main():
-    chan = channels(tep_fault_free)
-    mean, std_dev = standardization(tep_fault_free, chan)
+    chan = channels(tep_fault_free) # list of channel names for tracked variables
+    mean, std_dev = standardization(tep_fault_free, chan) # distribution of fault free data
 
-    train = training_runs(tep_fault_free)
-    val = validation_runs(tep_fault_free)
-    test = test_runs(tep_fault_free)
+    train = training_runs(tep_fault_free) # define training set (1-300)
+    val = validation_runs(tep_fault_free) # define validation set (301-400)
+    test = test_runs(tep_fault_free) # define test set (401-500)
 
     # Four standardized data frames for the training, validation, test, and faulty runs
     train_standardized = apply_standard(train, chan, mean, std_dev)
