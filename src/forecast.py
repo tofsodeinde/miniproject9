@@ -108,7 +108,7 @@ def main():
 
     print(scores_ridge) #PRINT FINAL SCORES RIDGE TABLE
     
-    #scores_ridge.write_parquet("../results/scores_ridge.parquet") # UNCOMMENT AFTER CHECKING
+    scores_ridge.write_parquet("../results/scores_ridge.parquet") # UNCOMMENT AFTER CHECKING
 
     
 
