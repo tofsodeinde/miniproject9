@@ -90,7 +90,7 @@ def write_scores_pca():
     pca = PCA_model(train_standardized) # fit PCA on training data 
 
     # score both fault free AND faulty data
-    fault_free_standardized_scored, fault_free_metadata = score(pca, fault_free_standardized)
+    fault_free_standardized_scored, fault_free_metadata = score(pca, train_standardized) # only score and export non-training data
     faulty_standardized_scored, faulty_metadata = score(pca, faulty_standardized)
 
     # now add back metadata, remove PCA and data columns
@@ -103,7 +103,7 @@ def write_scores_pca():
     fault_free_pca_df = fault_free_pca_data_df.select(parquet_cols)
     faulty_pca_df = faulty_pca_data_df.select(parquet_cols)
 
-    # write parquet file
+    # write parquet file 
     scores_pca = pl.concat([fault_free_pca_df,faulty_pca_df], how="vertical")
     scores_pca.write_parquet(r"..\results\scores_pca.parquet")
     return scores_pca
