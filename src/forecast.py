@@ -59,7 +59,7 @@ def standard_residual(training_runs): # take in training runs dataframe
     residual = ytr - model.predict(Xtr) # residual for each channel across all runs (numpy array)
 
     # take the standard deviation for each residual across all training rows
-    std_dev = np.std(residual, axis=0)
+    std_dev = np.std(residual, axis=0, ddof=1) 
     return std_dev
 
 # Step 4: For every scored row, divide each channel's residual by that std dev, square, 
