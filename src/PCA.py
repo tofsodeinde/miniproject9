@@ -81,16 +81,25 @@ def score(pca, df):
 def write_scores_pca():
     chan = channels(tep_fault_free) # list of channel names for tracked variables
     mean, std_dev = standardization(tep_fault_free, chan)
-    fault_free_standardized = apply_standard(tep_fault_free, chan, mean, std_dev)
-    faulty_standardized = apply_standard(tep_faulty, chan, mean, std_dev)
+
+    faulty_standardized = apply_standard(tep_faulty, chan, mean, std_dev) # 200k rows
 
     train = training_runs(tep_fault_free) # define training set (1-300)
-    train_standardized = apply_standard(train, chan, mean, std_dev)
+    train_standardized = apply_standard(train, chan, mean, std_dev) #150k rows
 
-    pca = PCA_model(train_standardized) # fit PCA on training data 
+    # train the PCA on the training data
+    pca = PCA_model(train_standardized)
 
-    # score both fault free AND faulty data
-    fault_free_standardized_scored, fault_free_metadata = score(pca, train_standardized) # only score and export non-training data
+    # only score and export non-training data
+    val = validation_runs(tep_fault_free) # define validation set (301-400)
+    test = test_runs(tep_fault_free) # define test set (401-500)
+    val_standardized = apply_standard(val, chan, mean, std_dev) # 50k rows
+    test_standardized = apply_standard(test, chan, mean, std_dev) # 50k rows
+
+    # for scoring, should be 300k rows (50k from val, 50k from test, 200k from faulty)
+    fault_free_standardized = pl.concat([val_standardized, test_standardized], how="vertical")  # pl concat the two other dataframes
+
+    fault_free_standardized_scored, fault_free_metadata = score(pca, fault_free_standardized) 
     faulty_standardized_scored, faulty_metadata = score(pca, faulty_standardized)
 
     # now add back metadata, remove PCA and data columns
@@ -98,12 +107,9 @@ def write_scores_pca():
     fault_free_pca_data_df = pl.concat([fault_free_metadata, fault_free_standardized_scored], how="horizontal_extend")
     faulty_pca_data_df = pl.concat([faulty_metadata, faulty_standardized_scored], how="horizontal_extend")
 
-    # if needed, this is all of the information
-    # includes metadata, data, PCA and scores
     fault_free_pca_df = fault_free_pca_data_df.select(parquet_cols)
     faulty_pca_df = faulty_pca_data_df.select(parquet_cols)
 
-    # write parquet file 
     scores_pca = pl.concat([fault_free_pca_df,faulty_pca_df], how="vertical")
     scores_pca.write_parquet(r"..\results\scores_pca.parquet")
     return scores_pca
